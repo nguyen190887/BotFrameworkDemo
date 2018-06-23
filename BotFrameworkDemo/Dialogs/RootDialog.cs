@@ -21,9 +21,9 @@ namespace BotFrameworkDemo.Dialogs
         {
             var activity = await result as Activity;
 
-            if (activity.Text.IndexOf(helloRequest, StringComparison.OrdinalIgnoreCase) > -1)
+            if (greetingRequests.ContainsText(activity.Text))
             {
-                await context.PostAsync(helloResponse);
+                await context.PostAsync(greetingMessages.PickOne());
             }
             else if (activity.Text.IndexOf(startKeyword, StringComparison.OrdinalIgnoreCase) > -1 ||
                 activity.Text.IndexOf(separator, StringComparison.OrdinalIgnoreCase) > -1)
@@ -39,13 +39,30 @@ namespace BotFrameworkDemo.Dialogs
             context.Wait(MessageReceivedAsync);
         }
 
-        const string helloRequest = "ê bot";
-        const string helloResponse = "Gì vậy đại ca???";
+        //const string helloRequest = "ê bot";
+        //const string helloResponse = "Gì vậy đại ca???";
         const string startKeyword = "bắt";
         const string endKeyword = "vậy";
         const string separator = "hay";
-        const string finalMessageFormat = "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!";
+        //const string finalMessageFormat = "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!";
         const string unpredictableMessage = "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!";
+
+        private string[] greetingRequests = new[]
+        {
+            "e bot",
+            "ê bot",
+            "hello",
+            "bot ơi",
+            "chào"
+        };
+
+        private string[] greetingMessages = new[]
+        {
+            "Gì vậy đại ca???",
+            "Đang ngủ mà... Có gì không?",
+            "Dạ, có em",
+            "Nghe nè!"
+        };
 
         private string[] notUnderstands = new[]
         {
@@ -64,6 +81,14 @@ namespace BotFrameworkDemo.Dialogs
             "Làm tới đi pa :))"
         };
 
+        private string[] bettingMessages = new[]
+        {
+            "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!",
+            "Cứ {0} mà bắt. {1} đá tệ lắm",
+            "Đừng có theo {1}, {0} nó mạnh lắm !",
+            "Theo {0} đi"
+        };
+
         private string BetFor(string message)
         {
             string trimmed = message.TrimEnd('?').RemoveStart(startKeyword).RemoveEnd(endKeyword);
@@ -78,7 +103,7 @@ namespace BotFrameworkDemo.Dialogs
 
             int winnerIndex = GetTeamIndex();
             int loserIndex = 1 - winnerIndex;
-            return string.Format(finalMessageFormat, teams[winnerIndex].ToUpper(), teams[loserIndex].ToUpper());
+            return bettingMessages.PickOneWithParams(teams[winnerIndex].ToUpper(), teams[loserIndex].ToUpper());
         }
 
         private static int GetTeamIndex()
@@ -136,6 +161,22 @@ namespace BotFrameworkDemo.Dialogs
             var ran = new Random(Guid.NewGuid().GetHashCode());
             var index = ran.Next(0, collection.Count() - 1);
             return collection.ElementAt(index);
+        }
+
+        public static string PickOneWithParams<T>(this IEnumerable<T> collection, params string[] args)
+        {
+            string format = collection.PickOne() as string;
+            if (string.IsNullOrEmpty(format))
+            {
+                return string.Empty;
+            }
+
+            return string.Format(format, args);
+        }
+
+        public static bool ContainsText(this IEnumerable<string> collection, string text)
+        {
+            return collection.Any(x => text.IndexOf(x, StringComparison.OrdinalIgnoreCase) > -1);
         }
     }
 }
