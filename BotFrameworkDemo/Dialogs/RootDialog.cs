@@ -33,11 +33,8 @@ namespace BotFrameworkDemo.Dialogs
             }
             else
             {
-                // Calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
-
-                // Return our reply to the user
-                await context.PostAsync($"You sent {activity.Text} which was {length} characters");
+                await context.PostAsync(notUnderstands.GetRandomly());
+                await context.PostAsync(unpredictableMessage);
             }
             context.Wait(MessageReceivedAsync);
         }
@@ -49,7 +46,16 @@ namespace BotFrameworkDemo.Dialogs
         const string separator = "hay";
         const string finalMessageFormat = "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!";
         const string endMessage = "Đừng tin Mèo một nhoa !!!";
-        const string errorMessage = "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!";
+        const string unpredictableMessage = "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!";
+
+        private string[] notUnderstands = new[]
+        {
+            "Chat gì khó vậy? Bot demo mà :D",
+            "Tào lao",
+            "Không hiểu gì cả!!!",
+            "Đang suy nghĩ ...",
+            "Hiểu chết liền !!!"
+        };
 
         private string BetFor(string message)
         {
@@ -60,7 +66,7 @@ namespace BotFrameworkDemo.Dialogs
 
             if (teams.Length != 2)
             {
-                return errorMessage;
+                return unpredictableMessage;
             }
 
             int winnerIndex = GetTeamIndex();
@@ -108,6 +114,21 @@ namespace BotFrameworkDemo.Dialogs
                 return text.Substring(0, endIndex).Trim();
             }
             return text;
+        }
+    }
+
+    public static class CollectionExtensions
+    {
+        public static T GetRandomly<T>(this IEnumerable<T> collection)
+        {
+            if (collection == null)
+            {
+                return default(T);
+            }
+
+            var ran = new Random(Guid.NewGuid().GetHashCode());
+            var index = ran.Next(0, collection.Count() - 1);
+            return collection.ElementAt(index);
         }
     }
 }
