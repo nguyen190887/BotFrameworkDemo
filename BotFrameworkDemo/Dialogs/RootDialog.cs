@@ -29,11 +29,11 @@ namespace BotFrameworkDemo.Dialogs
                 activity.Text.IndexOf(separator, StringComparison.OrdinalIgnoreCase) > -1)
             {
                 await context.PostAsync(BetFor(activity.Text));
-                await context.PostAsync(endMessage);
+                await context.PostAsync(finalMessages.PickOne());
             }
             else
             {
-                await context.PostAsync(notUnderstands.GetRandomly());
+                await context.PostAsync(notUnderstands.PickOne());
                 await context.PostAsync(unpredictableMessage);
             }
             context.Wait(MessageReceivedAsync);
@@ -45,7 +45,6 @@ namespace BotFrameworkDemo.Dialogs
         const string endKeyword = "vậy";
         const string separator = "hay";
         const string finalMessageFormat = "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!";
-        const string endMessage = "Đừng tin Mèo một nhoa !!!";
         const string unpredictableMessage = "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!";
 
         private string[] notUnderstands = new[]
@@ -55,6 +54,14 @@ namespace BotFrameworkDemo.Dialogs
             "Không hiểu gì cả!!!",
             "Đang suy nghĩ ...",
             "Hiểu chết liền !!!"
+        };
+
+        private string[] finalMessages = new[]
+        {
+            "Đừng tin mèo Một nhoa !!!",
+            "Tin tui đi, thua thì chửi tui nè :D",
+            "Liều ăn nhiều. Tiền thôi mà !!!",
+            "Làm tới đi pa :))"
         };
 
         private string BetFor(string message)
@@ -119,7 +126,7 @@ namespace BotFrameworkDemo.Dialogs
 
     public static class CollectionExtensions
     {
-        public static T GetRandomly<T>(this IEnumerable<T> collection)
+        public static T PickOne<T>(this IEnumerable<T> collection)
         {
             if (collection == null)
             {
