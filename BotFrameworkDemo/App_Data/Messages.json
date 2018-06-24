@@ -1,0 +1,43 @@
+﻿{
+    "GreetingRequests": [
+        "e bot",
+        "ê bot",
+        "hello",
+        "bot ơi",
+        "chào",
+        "good morning",
+        "good afternoon",
+        "hi"
+    ],
+    "GreetingMessages": [
+        "Gì vậy đại ca???",
+        "Đang ngủ mà... Có gì không?",
+        "Dạ, có em",
+        "Nghe nè!"
+    ],
+    "NotUnderstands": [
+        "Chat gì khó vậy? Bot demo mà :D",
+        "Tào lao",
+        "Không hiểu gì cả!!!",
+        "Đang suy nghĩ ...",
+        "Hiểu chết liền !!!"
+    ],
+    "BettingMessages": [
+        "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!",
+        "Cứ {0} mà bắt. {1} đá tệ lắm",
+        "Đừng có theo {1}, {0} nó mạnh lắm !",
+        "Theo {0} đi"
+    ],
+    "FinalMessages": [
+        "Đừng tin mèo Một nhoa !!!",
+        "Tin tui đi, thua thì chửi tui nè :D",
+        "Liều ăn nhiều. Tiền thôi mà !!!",
+        "Làm tới đi pa :))"
+    ],
+    "UnpredictableMessage": "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!",
+    "BettingKeyword": {
+        "Starts": [ "bắt", "chọn" ],
+        "Separators": [ "hay" ],
+        "Ends": [ "vậy" ]
+    }
+}

@@ -5,6 +5,9 @@ using Microsoft.Bot.Builder.Dialogs.Internals;
 using Autofac;
 using Microsoft.Bot.Connector;
 using System.Reflection;
+using Newtonsoft.Json;
+using BotFrameworkDemo.Models;
+using System.IO;
 
 namespace BotFrameworkDemo
 {
@@ -34,6 +37,19 @@ namespace BotFrameworkDemo
                     .AsSelf()
                     .SingleInstance();
             });
+
+            LoadMessages();
+        }
+
+        private static object _lock = new object();
+        private void LoadMessages()
+        {
+            string filePath = Server.MapPath("~/App_Data/Messages.json");
+
+            lock (_lock)
+            {
+                Application["BotMessages"] = JsonConvert.DeserializeObject<BotMessages>(File.ReadAllText(filePath));
+            }
         }
     }
 }

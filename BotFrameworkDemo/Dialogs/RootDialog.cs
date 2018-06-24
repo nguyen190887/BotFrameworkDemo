@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
+using BotFrameworkDemo.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 
@@ -10,6 +12,16 @@ namespace BotFrameworkDemo.Dialogs
     [Serializable]
     public class RootDialog : IDialog<object>
     {
+        private Lazy<BotMessages> MessagesLazy = new Lazy<BotMessages>(() => HttpContext.Current.Application["BotMessages"] as BotMessages);
+
+        protected BotMessages Messages
+        {
+            get
+            {
+                return MessagesLazy.Value;
+            }
+        }
+
         public Task StartAsync(IDialogContext context)
         {
             context.Wait(MessageReceivedAsync);
@@ -21,89 +33,67 @@ namespace BotFrameworkDemo.Dialogs
         {
             var activity = await result as Activity;
 
-            if (greetingRequests.ContainsText(activity.Text))
+            if (Messages.GreetingRequests.PartialContains(activity.Text))
             {
-                await context.PostAsync(greetingMessages.PickOne());
+                await context.PostAsync(Messages.GreetingMessages.PickOne());
             }
-            else if (activity.Text.IndexOf(startKeyword, StringComparison.OrdinalIgnoreCase) > -1 ||
-                activity.Text.IndexOf(separator, StringComparison.OrdinalIgnoreCase) > -1)
+            else if (Messages.BettingKeyword.Starts.PartialContains(activity.Text) ||
+                Messages.BettingKeyword.Separators.PartialContains(activity.Text))
             {
                 await context.PostAsync(BetFor(activity.Text));
-                await context.PostAsync(finalMessages.PickOne());
+                await context.PostAsync(Messages.FinalMessages.PickOne());
             }
             else
             {
-                await context.PostAsync(notUnderstands.PickOne());
-                await context.PostAsync(unpredictableMessage);
+                await context.PostAsync(Messages.NotUnderstands.PickOne());
+                await context.PostAsync(Messages.UnpredictableMessage);
             }
             context.Wait(MessageReceivedAsync);
         }
 
-        //const string helloRequest = "ê bot";
-        //const string helloResponse = "Gì vậy đại ca???";
-        const string startKeyword = "bắt";
-        const string endKeyword = "vậy";
-        const string separator = "hay";
-        //const string finalMessageFormat = "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!";
-        const string unpredictableMessage = "Không đoán được. Nhập 'bắt xxx hay yyy vậy?' đi !!!";
-
-        private string[] greetingRequests = new[]
-        {
-            "e bot",
-            "ê bot",
-            "hello",
-            "bot ơi",
-            "chào"
-        };
-
-        private string[] greetingMessages = new[]
-        {
-            "Gì vậy đại ca???",
-            "Đang ngủ mà... Có gì không?",
-            "Dạ, có em",
-            "Nghe nè!"
-        };
-
-        private string[] notUnderstands = new[]
-        {
-            "Chat gì khó vậy? Bot demo mà :D",
-            "Tào lao",
-            "Không hiểu gì cả!!!",
-            "Đang suy nghĩ ...",
-            "Hiểu chết liền !!!"
-        };
-
-        private string[] finalMessages = new[]
-        {
-            "Đừng tin mèo Một nhoa !!!",
-            "Tin tui đi, thua thì chửi tui nè :D",
-            "Liều ăn nhiều. Tiền thôi mà !!!",
-            "Làm tới đi pa :))"
-        };
-
-        private string[] bettingMessages = new[]
-        {
-            "Bắt {0} đi. Nghĩ sao mà đi bắt {1} vậy !!!",
-            "Cứ {0} mà bắt. {1} đá tệ lắm",
-            "Đừng có theo {1}, {0} nó mạnh lắm !",
-            "Theo {0} đi"
-        };
-
         private string BetFor(string message)
         {
-            string trimmed = message.TrimEnd('?').RemoveStart(startKeyword).RemoveEnd(endKeyword);
-            string[] teams = trimmed.Split(new[] { separator }, StringSplitOptions.None)
+            string trimmed = message.TrimEnd('?');
+
+            trimmed = RemoveStartAndEndKeyword(trimmed);
+
+            string[] teams = trimmed.Split(Messages.BettingKeyword.Separators, StringSplitOptions.None)
                 .Select(x => x.Trim())
                 .ToArray();
 
             if (teams.Length != 2)
             {
-                return unpredictableMessage;
+                return Messages.UnpredictableMessage;
             }
 
             int winnerIndex = GetTeamIndex();
             int loserIndex = 1 - winnerIndex;
-            return bettingMessages.PickOneWithParams(teams[winnerIndex].ToUpper(), teams[loserIndex].ToUpper());
+            return Messages.BettingMessages.PickOneWithParams(teams[winnerIndex].ToUpper(), teams[loserIndex].ToUpper());
+        }
+
+        private string RemoveStartAndEndKeyword(string trimmed)
+        {
+            foreach (var start in Messages.BettingKeyword.Starts)
+            {
+                string removed = trimmed.RemoveStart(start);
+                if (removed != trimmed)
+                {
+                    trimmed = removed;
+                    break;
+                }
+            }
+
+            foreach (var end in Messages.BettingKeyword.Ends)
+            {
+                string removed = trimmed.RemoveEnd(end);
+                if (removed != trimmed)
+                {
+                    trimmed = removed;
+                    break;
+                }
+            }
+
+            return trimmed;
         }
 
         private static int GetTeamIndex()
@@ -174,9 +164,14 @@ namespace BotFrameworkDemo.Dialogs
             return string.Format(format, args);
         }
 
-        public static bool ContainsText(this IEnumerable<string> collection, string text)
+        public static bool PartialContains(this IEnumerable<string> collection, string text)
         {
             return collection.Any(x => text.IndexOf(x, StringComparison.OrdinalIgnoreCase) > -1);
+        }
+
+        public static bool ContainsIgnoreCase(this IEnumerable<string> collection, string text)
+        {
+            return collection.Any(x => text.Equals(x, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
