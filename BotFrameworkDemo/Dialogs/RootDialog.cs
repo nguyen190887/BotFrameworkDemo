@@ -45,7 +45,7 @@ namespace BotFrameworkDemo.Dialogs
 
             if (_greetingHandler.IsCountingStarted(activity.Text))
             {
-                await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(activity.Text));
+                await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(activity.RemoveRecipientMention()));
             }
             else if (_greetingHandler.IsBetStarted(activity.Text))
             {
@@ -53,19 +53,5 @@ namespace BotFrameworkDemo.Dialogs
             }
             context.Wait(MessageReceivedAsync);
         }
-
-        //private async Task ResumeAfterBettingDialog(IDialogContext context, IAwaitable<object> result)
-        //{
-        //    await context.PostAsync($"Thanks for betting!");
-
-        //    var userChoice = result as Dictionary<string, string>;
-        //    if (userChoice != null)
-        //    {
-        //        string msg = string.Join(Environment.NewLine, userChoice.Select(x => $"{x.Key}: {x.Value}"));
-        //        await context.PostAsync(msg);
-        //    }
-
-        //    context.Wait(this.MessageReceivedAsync);
-        //}
     }
 }
