@@ -38,7 +38,7 @@ namespace BotFrameworkDemo.Dialogs
             string output = activity.Text;
             foreach (var mention in activity.GetMentions())
             {
-                output.Replace(mention.Text, "");
+                output = output.Replace(mention.Text, "");
             }
             return output;
         }
