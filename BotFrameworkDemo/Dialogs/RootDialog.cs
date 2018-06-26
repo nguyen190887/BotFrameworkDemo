@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using BotFrameworkDemo.Models;
+using BotFrameworkDemo.Processors;
+using Microsoft.Bot.Builder.ConnectorEx;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
+using Newtonsoft.Json;
 
 namespace BotFrameworkDemo.Dialogs
 {
@@ -13,6 +17,8 @@ namespace BotFrameworkDemo.Dialogs
     public class RootDialog : IDialog<object>
     {
         private Lazy<BotMessages> MessagesLazy = new Lazy<BotMessages>(() => HttpContext.Current.Application["BotMessages"] as BotMessages);
+
+        private TeamCounter _teamCounter = new TeamCounter();
 
         protected BotMessages Messages
         {
@@ -29,11 +35,33 @@ namespace BotFrameworkDemo.Dialogs
             return Task.CompletedTask;
         }
 
+        [NonSerialized]
+        Timer t;
+
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
 
-            if (Messages.GreetingRequests.PartialContains(activity.Text))
+            //ConversationStarter.toId = activity.From.Id;
+            //ConversationStarter.toName = activity.From.Name;
+            //ConversationStarter.fromId = activity.Recipient.Id;
+            //ConversationStarter.fromName = activity.Recipient.Name;
+            //ConversationStarter.serviceUrl = activity.ServiceUrl;
+            //ConversationStarter.channelId = activity.ChannelId;
+            //ConversationStarter.conversationId = activity.Conversation.Id;
+
+            var conversationReference = activity.ToConversationReference();
+            ConversationStarter.conversationReference = JsonConvert.SerializeObject(conversationReference);
+
+
+            t = new Timer(new TimerCallback(timerEvent));
+            t.Change(5000, Timeout.Infinite);
+
+            if (_teamCounter.IsCountingStarted(activity.Text))
+            {
+                await _teamCounter.InitPoll(activity);
+            }
+            else if (Messages.GreetingRequests.PartialContains(activity.Text))
             {
                 await context.PostAsync(Messages.GreetingMessages.PickOne());
             }
@@ -104,6 +132,11 @@ namespace BotFrameworkDemo.Dialogs
             return value % 2;
         }
 
+        public void timerEvent(object target)
+        {
+            t.Dispose();
+            ConversationStarter.Resume(); //We don't need to wait for this, just want to start the interruption here
+        }
     }
 
     public static class TextExtensions

@@ -154,6 +154,9 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
+    <Compile Include="Dialogs\SurveyDialog.cs" />
+    <Compile Include="Processors\ConversationStarter.cs" />
+    <Compile Include="Processors\TeamCounter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
