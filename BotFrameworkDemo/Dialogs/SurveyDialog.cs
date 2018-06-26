@@ -21,7 +21,11 @@ namespace BotFrameworkDemo.Dialogs
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
             var activity = await result as Activity;
-            if (GetTextWithoutMentions(activity) == "done")
+
+            var withoutMentions = GetTextWithoutMentions(activity);
+            await context.PostAsync($"Before: {activity.Text} - After: {withoutMentions}");
+
+            if (withoutMentions == "done")
             {
                 await context.PostAsync("Great, back to the original conversation!");
                 context.Done(String.Empty); //Finish this dialog
@@ -40,7 +44,7 @@ namespace BotFrameworkDemo.Dialogs
             {
                 output = output.Replace(mention.Text, "");
             }
-            return output;
+            return output?.Trim();
         }
     }
 }
