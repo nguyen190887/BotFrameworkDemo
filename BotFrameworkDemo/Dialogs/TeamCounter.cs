@@ -17,13 +17,13 @@ namespace BotFrameworkDemo.Dialogs
         [NonSerialized]
         private Timer t;
 
-        public async Task InitPoll(Activity activity)
+        public async Task InitPoll(Activity activity, string[] choices)
         {
             var conversationReference = activity.ToConversationReference();
             ConversationStarter.conversationReference = JsonConvert.SerializeObject(conversationReference);
 
 
-            t = new Timer(new TimerCallback(timerEvent));
+            t = new Timer(new TimerCallback(timerEvent), choices, 0, 0);
             t.Change(2000, Timeout.Infinite);
         }
 
@@ -31,7 +31,7 @@ namespace BotFrameworkDemo.Dialogs
         public void timerEvent(object target)
         {
             t.Dispose();
-            ConversationStarter.Resume(() => new SurveyDialog()); //We don't need to wait for this, just want to start the interruption here
+            ConversationStarter.Resume(() => new SurveyDialog(target as string[])); //We don't need to wait for this, just want to start the interruption here
         }
     }
 }

@@ -59,23 +59,56 @@ namespace BotFrameworkDemo.Dialogs
     [Serializable]
     public class SurveyDialog : IDialog<object>
     {
+        private int _memberCount;
+
+        private string[] _choices;
+
+        public Dictionary<string, string> UserChoice { get; set; } = new Dictionary<string, string>();
+
+        public SurveyDialog(params string[] choices)
+        {
+            _choices = choices;
+        }
+
         public async Task StartAsync(IDialogContext context)
         {
-            PromptDialog.Choice(context, this.AfterSelectOption, new string[] { "Stay in this survey", "Get back to where I was" }, "Hello, you're in the survey dialog. Please pick one of these options");
+            Prompt(context);
+        }
+
+        private void Prompt(IDialogContext context)
+        {
+            PromptDialog.Choice(context, this.AfterSelectOption, _choices, "Chọn chè nào vậy bà con?");
         }
 
         private async Task AfterSelectOption(IDialogContext context, IAwaitable<string> result)
         {
+            //if ((await result) == "Get back to where I was")
+            //{
+            //    await context.PostAsync("Great, back to the original conversation!");
+            //    context.Done(String.Empty); //Finish this dialog
+            //}
+            //else
+            //{
+            //    await context.PostAsync("I'm still on the survey until you tell me to stop");
+            //    PromptDialog.Choice(context, this.AfterSelectOption, new string[] { "Stay in this survey", "Get back to where I was" }, "Hello, you're in the survey dialog. Please pick one of these options");
+            //}
 
-            if ((await result) == "Get back to where I was")
+            UserChoice[context.Activity.From.Name] = await result;
+
+            int count = UserChoice.Keys.Count;
+            _memberCount = AppData.ChannelMemberCounter[context.Activity.ChannelId].Count - 1; // exclude bot
+
+            if (count == _memberCount)
             {
-                await context.PostAsync("Great, back to the original conversation!");
-                context.Done(String.Empty); //Finish this dialog
+                string msg = string.Join(Environment.NewLine, UserChoice.Select(x => $"{x.Key}: {x.Value}"));
+                await context.PostAsync("***Summary:" + Environment.NewLine + msg);
+
+                context.Done(string.Empty);
             }
             else
             {
-                await context.PostAsync("I'm still on the survey until you tell me to stop");
-                PromptDialog.Choice(context, this.AfterSelectOption, new string[] { "Stay in this survey", "Get back to where I was" }, "Hello, you're in the survey dialog. Please pick one of these options");
+                await context.PostAsync("Remaining: " + (_memberCount - count));
+                Prompt(context);
             }
         }
     }

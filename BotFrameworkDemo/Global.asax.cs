@@ -8,6 +8,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using BotFrameworkDemo.Models;
 using System.IO;
+using System.Collections.Generic;
 
 namespace BotFrameworkDemo
 {
@@ -56,5 +57,7 @@ namespace BotFrameworkDemo
     public static class AppData
     {
         public static BotMessages BotMesasges { get; set; }
+
+        public static Dictionary<string, HashSet<string>> ChannelMemberCounter { get; set; } = new Dictionary<string, HashSet<string>>();
     }
 }

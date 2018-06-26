@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -28,6 +30,7 @@ namespace BotFrameworkDemo
             return response;
         }
 
+        private static readonly object _memberLock = new object();
         private Activity HandleSystemMessage(Activity message)
         {
             string messageType = message.GetActivityType();
@@ -41,6 +44,28 @@ namespace BotFrameworkDemo
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
+
+                lock (_memberLock)
+                {
+                    HashSet<string> memberSet = AppData.ChannelMemberCounter.ContainsKey(message.ChannelId) ? AppData.ChannelMemberCounter[message.ChannelId] : new HashSet<string>();
+                    if (message.MembersAdded != null && message.MembersAdded.Count > 0)
+                    {
+                        //memberCount += message.MembersAdded.Count;
+                        foreach (var member in message.MembersAdded)
+                        {
+                            memberSet.Add(member.Id);
+                        }
+                    }
+                    if (message.MembersRemoved != null && message.MembersRemoved.Count > 0)
+                    {
+                        //memberCount -= message.MembersRemoved.Count;
+                        foreach (var member in message.MembersRemoved)
+                        {
+                            memberSet.Remove(member.Id);
+                        }
+                    }
+                    AppData.ChannelMemberCounter[message.ChannelId] = memberSet;
+                }
             }
             else if (messageType == ActivityTypes.ContactRelationUpdate)
             {
