@@ -35,27 +35,9 @@ namespace BotFrameworkDemo.Dialogs
             return Task.CompletedTask;
         }
 
-        [NonSerialized]
-        Timer t;
-
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
-
-            //ConversationStarter.toId = activity.From.Id;
-            //ConversationStarter.toName = activity.From.Name;
-            //ConversationStarter.fromId = activity.Recipient.Id;
-            //ConversationStarter.fromName = activity.Recipient.Name;
-            //ConversationStarter.serviceUrl = activity.ServiceUrl;
-            //ConversationStarter.channelId = activity.ChannelId;
-            //ConversationStarter.conversationId = activity.Conversation.Id;
-
-            var conversationReference = activity.ToConversationReference();
-            ConversationStarter.conversationReference = JsonConvert.SerializeObject(conversationReference);
-
-
-            t = new Timer(new TimerCallback(timerEvent));
-            t.Change(5000, Timeout.Infinite);
 
             if (_teamCounter.IsCountingStarted(activity.Text))
             {
@@ -130,12 +112,6 @@ namespace BotFrameworkDemo.Dialogs
             var random = new Random(seed);
             var value = random.Next(1000000);
             return value % 2;
-        }
-
-        public void timerEvent(object target)
-        {
-            t.Dispose();
-            ConversationStarter.Resume(); //We don't need to wait for this, just want to start the interruption here
         }
     }
 
