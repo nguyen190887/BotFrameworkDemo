@@ -8,6 +8,7 @@ using System.Web;
 
 namespace BotFrameworkDemo.Dialogs
 {
+    #region Without prompt
     //[Serializable]
     //public class SurveyDialog : IDialog<object>
     //{
@@ -52,7 +53,8 @@ namespace BotFrameworkDemo.Dialogs
 
     //        return output.Trim();
     //    }
-    //}
+    //} 
+    #endregion
 
     [Serializable]
     public class SurveyDialog : IDialog<object>

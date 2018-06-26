@@ -48,8 +48,13 @@ namespace BotFrameworkDemo
 
             lock (_lock)
             {
-                Application["BotMessages"] = JsonConvert.DeserializeObject<BotMessages>(File.ReadAllText(filePath));
+                AppData.BotMesasges = JsonConvert.DeserializeObject<BotMessages>(File.ReadAllText(filePath));
             }
         }
+    }
+
+    public static class AppData
+    {
+        public static BotMessages BotMesasges { get; set; }
     }
 }

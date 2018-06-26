@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using BotFrameworkDemo.Dialogs;
+using Microsoft.Bot.Builder.ConnectorEx;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Connector;
@@ -11,51 +12,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace BotFrameworkDemo.Processors
+namespace BotFrameworkDemo.Dialogs
 {
     public class ConversationStarter
     {
-        ////Note: Of course you don't want these here. Eventually you will need to save these in some table
-        ////Having them here as static variables means we can only remember one user :)
-        //public static string fromId;
-        //public static string fromName;
-        //public static string toId;
-        //public static string toName;
-        //public static string serviceUrl;
-        //public static string channelId;
-        //public static string conversationId;
-
-        ////This will send an adhoc message to the user
-        //public static async Task Resume(string conversationId, string channelId)
-        //{
-        //    var userAccount = new ChannelAccount(toId, toName);
-        //    var botAccount = new ChannelAccount(fromId, fromName);
-        //    var connector = new ConnectorClient(new Uri(serviceUrl));
-
-        //    IMessageActivity message = Activity.CreateMessageActivity();
-        //    if (!string.IsNullOrEmpty(conversationId) && !string.IsNullOrEmpty(channelId))
-        //    {
-        //        message.ChannelId = channelId;
-        //    }
-        //    else
-        //    {
-        //        conversationId = (await connector.Conversations.CreateDirectConversationAsync(botAccount, userAccount)).Id;
-        //    }
-        //    message.From = botAccount;
-        //    message.Recipient = userAccount;
-        //    message.Conversation = new ConversationAccount(id: conversationId);
-        //    message.Text = "Hello, this is a notification";
-        //    message.Locale = "en-Us";
-        //    await connector.Conversations.SendToConversationAsync((Activity)message);
-        //}
-
-
         //Note: Of course you don't want this here. Eventually you will need to save this in some table
         //Having this here as static variable means we can only remember one user :)
         public static string conversationReference;
 
+        private static Timer _timer;
+
+        public static void Start(Activity activity, Func<IDialog<object>> createDialog, int timeout = 2000)
+        {
+            var conversationReference = activity.ToConversationReference();
+            ConversationStarter.conversationReference = JsonConvert.SerializeObject(conversationReference);
+
+
+            _timer = new Timer(new TimerCallback(timerEvent), createDialog, 0, 0);
+            _timer.Change(timeout, Timeout.Infinite);
+        }
+
+        public static void timerEvent(object target)
+        {
+            _timer.Dispose();
+
+            var createDialog = target as Func<IDialog<object>>;
+            Resume(createDialog); //We don't need to wait for this, just want to start the interruption here
+        }
+
         //This will interrupt the conversation and send the user to SurveyDialog, then wait until that's done 
-        public static async Task Resume()
+        public static async Task Resume(Func<IDialog<object>> createDialog)
         {
             var message = JsonConvert.DeserializeObject<ConversationReference>(conversationReference).GetPostToBotMessage();
             var client = new ConnectorClient(new Uri(message.ServiceUrl));
@@ -70,7 +56,7 @@ namespace BotFrameworkDemo.Processors
 
                 //interrupt the stack. This means that we're stopping whatever conversation that is currently happening with the user
                 //Then adding this stack to run and once it's finished, we will be back to the original conversation
-                var dialog = new SurveyDialog();
+                var dialog = createDialog();
                 task.Call(dialog.Void<object, IMessageActivity>(), null);
 
                 await task.PollAsync(CancellationToken.None);
