@@ -40,11 +40,17 @@ namespace BotFrameworkDemo.Dialogs
         private string GetTextWithoutMentions(Activity activity)
         {
             string output = activity.Text;
+
+            // remove mentions
             foreach (var mention in activity.GetMentions())
             {
                 output = output.Replace(mention.Text, "");
             }
-            return output?.Trim();
+
+            // remove @botname
+            output = output.Replace($"@{activity.Recipient.Name}", "");
+
+            return output.Trim();
         }
     }
 }
