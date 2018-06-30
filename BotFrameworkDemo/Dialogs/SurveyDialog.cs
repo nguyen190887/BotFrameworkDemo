@@ -1,4 +1,5 @@
-﻿using Microsoft.Bot.Builder.Dialogs;
+﻿using BotFrameworkDemo.Extensions;
+using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,8 @@ namespace BotFrameworkDemo.Dialogs
     [Serializable]
     public class SurveyDialog : IDialog<object>
     {
+        private const string EndingCommand = "tong ket";
+
         private int _memberCount;
 
         private string[] _choices;
@@ -75,6 +78,18 @@ namespace BotFrameworkDemo.Dialogs
             Prompt(context);
         }
 
+        public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        {
+            // TODO
+            var activity = result as Activity;
+            var message = activity.RemoveBotMention();
+            if (message.Equals(EndingCommand, StringComparison.OrdinalIgnoreCase))
+            {
+                await SendSummaryMessage(context);
+                context.Done(string.Empty);
+            }
+        }
+
         private void Prompt(IDialogContext context)
         {
             PromptDialog.Choice(context, this.AfterSelectOption, _choices, "Chọn chè nào vậy bà con?");
@@ -82,34 +97,34 @@ namespace BotFrameworkDemo.Dialogs
 
         private async Task AfterSelectOption(IDialogContext context, IAwaitable<string> result)
         {
-            //if ((await result) == "Get back to where I was")
-            //{
-            //    await context.PostAsync("Great, back to the original conversation!");
-            //    context.Done(String.Empty); //Finish this dialog
-            //}
-            //else
-            //{
-            //    await context.PostAsync("I'm still on the survey until you tell me to stop");
-            //    PromptDialog.Choice(context, this.AfterSelectOption, new string[] { "Stay in this survey", "Get back to where I was" }, "Hello, you're in the survey dialog. Please pick one of these options");
-            //}
-
             UserChoice[context.Activity.From.Name] = await result;
 
             int count = UserChoice.Keys.Count;
-            _memberCount = AppData.ChannelMemberCounter[context.Activity.ChannelId].Count - 1; // exclude bot
+            _memberCount = CountMembers(context); // exclude bot
 
             if (count == _memberCount)
             {
-                string msg = string.Join(Environment.NewLine, UserChoice.Select(x => $"{x.Key}: {x.Value}"));
-                await context.PostAsync("***Summary:" + Environment.NewLine + msg);
+                await SendSummaryMessage(context);
 
                 context.Done(string.Empty);
             }
             else
             {
-                await context.PostAsync("Remaining: " + (_memberCount - count));
-                Prompt(context);
+                await context.PostAsync($"Còn {(_memberCount - count)} người chưa CHỌN!");
+                //Prompt(context);
+                context.Wait(MessageReceivedAsync);
             }
+        }
+
+        private async Task SendSummaryMessage(IDialogContext context)
+        {
+            string msg = string.Join(Environment.NewLine, UserChoice.Select(x => $"{x.Key}: {x.Value}"));
+            await context.PostAsync("***Tổng kết:" + Environment.NewLine + msg);
+        }
+
+        private static int CountMembers(IDialogContext context)
+        {
+            return AppData.ChannelMemberCounter[context.Activity.ChannelId].Count - 1;
         }
     }
 }

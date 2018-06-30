@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using BotFrameworkDemo.Models;
 using System.IO;
 using System.Collections.Generic;
+using BotFrameworkDemo.Modules;
 
 namespace BotFrameworkDemo
 {
@@ -22,6 +23,8 @@ namespace BotFrameworkDemo
             builder =>
             {
                 builder.RegisterModule(new AzureModule(Assembly.GetExecutingAssembly()));
+
+                builder.RegisterModule(new GlobalMessageHandlerModule());
 
                 // Bot Storage: Here we register the state storage for your bot. 
                 // Default store: volatile in-memory store - Only for prototyping!

@@ -13,7 +13,8 @@ namespace BotFrameworkDemo.Extensions
             string botName = activity.Recipient.Name;
             if (activity.Text.StartsWith(botName, StringComparison.OrdinalIgnoreCase))
             {
-                return activity.Text.Substring(botName.Length).Trim();
+                return activity.Text.Substring(botName.Length).Trim()
+                    .TrimStart(':').Trim();
             }
             return activity.Text;
         }

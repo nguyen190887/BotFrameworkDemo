@@ -4,6 +4,7 @@ using BotFrameworkDemo.Processors;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -30,10 +31,17 @@ namespace BotFrameworkDemo.Dialogs
             var activity = await result as Activity;
 
             // TODO: move betting logic to BettingDialog
-            var text = activity.RemoveBotMention();
-            if (_greetingHandler.IsCountingStarted(text))
+            var message = activity.RemoveBotMention();
+            if (_greetingHandler.IsCountingStarted(message))
             {
-                await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));
+                //await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));
+                //await context.Forward(
+                //    new SurveyDialog(_greetingHandler.GetCountingChoices(message)), ResumeAfterSurvey, message, CancellationToken.None);
+            }
+            else if (message == "test")
+            {
+                // TODO: currently not working, need to research more
+                context.Call(ChainDialogDemo.Simple(), ResumeAfterSurvey);
             }
             else
             //if (_greetingHandler.IsBetStarted(text))
@@ -42,6 +50,11 @@ namespace BotFrameworkDemo.Dialogs
                 await _betProcessor.ProcessBet(context, activity);
             }
             context.Wait(MessageReceivedAsync);
+        }
+
+        private async Task ResumeAfterSurvey(IDialogContext context, IAwaitable<object> result)
+        {
+
         }
     }
 }

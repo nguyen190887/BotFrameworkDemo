@@ -153,8 +153,10 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Dialogs\ChainDialogDemo.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Dialogs\BettingDialog.cs" />
+    <Compile Include="Dialogs\SampleScorable.cs" />
     <Compile Include="Dialogs\SurveyDialog.cs" />
     <Compile Include="Dialogs\ConversationStarter.cs" />
     <Compile Include="Dialogs\TeamCounter.cs" />
@@ -165,6 +167,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\BotMessages.cs" />
+    <Compile Include="Modules\GlobalMessageHandlerModule.cs" />
     <Compile Include="Processors\BetProcessor.cs" />
     <Compile Include="Processors\GreetingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
