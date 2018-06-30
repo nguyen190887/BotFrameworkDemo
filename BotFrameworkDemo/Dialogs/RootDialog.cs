@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
+﻿using BotFrameworkDemo.Extensions;
 using BotFrameworkDemo.Models;
 using BotFrameworkDemo.Processors;
-using Microsoft.Bot.Builder.ConnectorEx;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
-using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace BotFrameworkDemo.Dialogs
 {
@@ -42,7 +38,7 @@ namespace BotFrameworkDemo.Dialogs
             var activity = await result as Activity;
 
             // TODO: move betting logic to BettingDialog
-            var text = activity.RemoveRecipientMention().Trim();
+            var text = activity.RemoveBotMention();
             if (_greetingHandler.IsCountingStarted(text))
             {
                 await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));

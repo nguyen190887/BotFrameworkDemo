@@ -158,6 +158,7 @@
     <Compile Include="Dialogs\SurveyDialog.cs" />
     <Compile Include="Dialogs\ConversationStarter.cs" />
     <Compile Include="Dialogs\TeamCounter.cs" />
+    <Compile Include="Extensions\ActivityExtensions.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\TextExtensions.cs" />
     <Compile Include="Global.asax.cs">
