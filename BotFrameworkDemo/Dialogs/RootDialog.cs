@@ -12,19 +12,11 @@ namespace BotFrameworkDemo.Dialogs
     [Serializable]
     public class RootDialog : IDialog<object>
     {
-        private Lazy<BotMessages> MessagesLazy = new Lazy<BotMessages>(() => HttpContext.Current.Application["BotMessages"] as BotMessages);
-
         private TeamCounter _teamCounter = new TeamCounter();
 
         private GreetingHandler _greetingHandler = new GreetingHandler();
 
-        protected BotMessages Messages
-        {
-            get
-            {
-                return MessagesLazy.Value;
-            }
-        }
+        private BetProcessor _betProcessor = new BetProcessor { Messages = AppData.BotMesasges };
 
         public Task StartAsync(IDialogContext context)
         {
@@ -43,9 +35,11 @@ namespace BotFrameworkDemo.Dialogs
             {
                 await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));
             }
-            else if (_greetingHandler.IsBetStarted(text))
+            else
+            //if (_greetingHandler.IsBetStarted(text))
             {
-                ConversationStarter.Start(activity, () => new BettingDialog(AppData.BotMesasges));
+                //ConversationStarter.Start(activity, () => new BettingDialog(AppData.BotMesasges));
+                await _betProcessor.ProcessBet(context, activity);
             }
             context.Wait(MessageReceivedAsync);
         }

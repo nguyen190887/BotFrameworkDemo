@@ -165,6 +165,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\BotMessages.cs" />
+    <Compile Include="Processors\BetProcessor.cs" />
     <Compile Include="Processors\GreetingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
