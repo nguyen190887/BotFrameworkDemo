@@ -32,11 +32,12 @@ namespace BotFrameworkDemo.Dialogs
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
             var activity = await result as Activity;
+            var text = activity.RemoveRecipientMention();
 
-            if (Messages.BettingKeyword.Starts.PartialContains(activity.Text) ||
-                Messages.BettingKeyword.Separators.PartialContains(activity.Text))
+            if (Messages.BettingKeyword.Starts.PartialContains(text) ||
+                Messages.BettingKeyword.Separators.PartialContains(text))
             {
-                await context.PostAsync(BetFor(activity.Text));
+                await context.PostAsync(BetFor(text));
                 await context.PostAsync(Messages.FinalMessages.PickOne());
                 context.Done(string.Empty);
             }

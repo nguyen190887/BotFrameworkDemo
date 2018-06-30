@@ -42,12 +42,12 @@ namespace BotFrameworkDemo.Dialogs
             var activity = await result as Activity;
 
             // TODO: move betting logic to BettingDialog
-
-            if (_greetingHandler.IsCountingStarted(activity.Text))
+            var text = activity.RemoveRecipientMention();
+            if (_greetingHandler.IsCountingStarted(text))
             {
-                await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(activity.RemoveRecipientMention()));
+                await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));
             }
-            else if (_greetingHandler.IsBetStarted(activity.Text))
+            else if (_greetingHandler.IsBetStarted(text))
             {
                 ConversationStarter.Start(activity, () => new BettingDialog(AppData.BotMesasges));
             }
