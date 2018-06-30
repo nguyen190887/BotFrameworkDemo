@@ -42,7 +42,7 @@ namespace BotFrameworkDemo.Dialogs
             var activity = await result as Activity;
 
             // TODO: move betting logic to BettingDialog
-            var text = activity.RemoveRecipientMention();
+            var text = activity.RemoveRecipientMention().Trim();
             if (_greetingHandler.IsCountingStarted(text))
             {
                 await _teamCounter.InitPoll(activity, _greetingHandler.GetCountingChoices(text));
