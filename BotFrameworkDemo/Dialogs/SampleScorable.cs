@@ -23,7 +23,7 @@ namespace BotFrameworkDemo.Dialogs
         protected override Task DoneAsync(IActivity item, string state, CancellationToken token)
         {
             // TODO
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         protected override double GetScore(IActivity item, string state)
@@ -40,14 +40,14 @@ namespace BotFrameworkDemo.Dialogs
 
         protected override Task PostAsync(IActivity item, string state, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
             // TODO
         }
 
         protected override Task<string> PrepareAsync(IActivity item, CancellationToken token)
         {
-            throw new NotImplementedException();
             // TODO
+            return Task.FromResult(string.Empty);
         }
     }
 }

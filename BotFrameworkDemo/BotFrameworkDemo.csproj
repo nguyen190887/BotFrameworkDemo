@@ -157,6 +157,7 @@
     <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Dialogs\BettingDialog.cs" />
     <Compile Include="Dialogs\SampleScorable.cs" />
+    <Compile Include="Dialogs\SandwichOrder.cs" />
     <Compile Include="Dialogs\SurveyDialog.cs" />
     <Compile Include="Dialogs\ConversationStarter.cs" />
     <Compile Include="Dialogs\TeamCounter.cs" />
